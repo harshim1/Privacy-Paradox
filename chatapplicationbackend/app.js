@@ -1,11 +1,10 @@
+// server.js
 const express = require('express');
 const http = require('http');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const User = require('./models/User'); // Adjust the path as necessary
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,8 +20,6 @@ app.use(express.json());
 
 mongoose.connect('mongodb+srv://shreyasa:rAxoQymiL4id41tD@cluster1.bm4u1wu.mongodb.net/ChatDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Routes
-const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
 const messages = []; // In-memory message storage; replace with DB logic in production

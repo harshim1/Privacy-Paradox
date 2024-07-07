@@ -1,3 +1,4 @@
+// routes/auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -39,7 +40,45 @@ router.post('/login', async (req, res) => {
 
     res.json({ token });
   } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
 
+// Get all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Get user's friends
+router.get('/users/:userId/friends', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate('friends', '-password');
+    res.json(user.friends);
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Add friend
+router.post('/add-friend', async (req, res) => {
+  const { userId, friendId } = req.body;
+  try {
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+    if (!user || !friend) return res.status(404).json({ msg: 'User not found' });
+
+    if (!user.friends.includes(friendId)) {
+      user.friends.push(friendId);
+      await user.save();
+    }
+
+    res.json(user);
+  } catch (err) {
     res.status(500).send('Server error');
   }
 });
